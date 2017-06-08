@@ -1,12 +1,13 @@
 
 # coding: utf-8
 
-# In[4]:
+# In[1]:
 
 import sys,pprint
 
 
-# In[10]:
+# In[27]:
+
 
 class cabocha_tree(object):
     r"""parse the cabocha_tree
@@ -16,10 +17,10 @@ class cabocha_tree(object):
         class of pased tree structure with pos taggings
         """
 
-    def __init__(self, input_str):
+    def __init__(self, input_str_list):
         self.tree_d = dict()
 
-        for line in input_str.split("\n"):
+        for line in input_str_list:
             if line.startswith("*"):
                 _, constituent_num, father_num, head_func_num, dep_score = line.split(" ")
                 self.tree_d[int(constituent_num)] = {
@@ -58,11 +59,42 @@ class cabocha_tree(object):
     def print_tree_dict(self):
         pprint.pprint(self.tree_d)
 
-    def attribute1(self):
-        return self.attr1
+    def print_knock40(self):
+        for p in self.tree_d:
+            for w in self.tree_d[p]["words"]:
+                print(self.tree_d[p]["words"][w]['原形'])
 
 
 # In[8]:
+
+
+# In[23]:
+
+def gen_sent_cabocha(f_name):
+    with open(f_name,"r",encoding="utf-8") as f:
+        output=[]
+        for line in f:
+            if line.startswith("EOS"):
+                output.append(line)
+                if len(output)>1:
+                    yield output
+                output=[]
+            else:
+                output.append(line)
+            
+
+
+# In[31]:
+
+for ind,sent_list in enumerate(gen_sent_cabocha("./neko.txt.cabocha")):
+    if ind==2:
+        print("sentence "+str(ind+1)+":")
+        parse_=cabocha_tree(sent_list)
+        parse_.print_knock40()
+        break
+
+
+# In[15]:
 
 test_str="""
 * 0 5D 0/1 -1.514009
@@ -88,10 +120,15 @@ EOS
 """
 
 
-# In[11]:
+# In[16]:
 
 temp=cabocha_tree(test_str)
+
+
+# In[17]:
+
 temp.print_tree_dict()
+
 
 # In[ ]:
 
